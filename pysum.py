@@ -19,7 +19,7 @@ value2 = value.split(' *')
 value = value2[0]
 #blocksize to read file
 BLOCKSIZE = 4096
-#creat hashing obj
+#create hashing obj
 hasher = sha256()
 with open(isoFile, 'rb') as hashand:
         while True:
