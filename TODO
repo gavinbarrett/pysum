@@ -1,1 +1,1 @@
-version of pysum being worked on in ~/Dev/
+Make error checking more robust; catch errors and check files more carefully
