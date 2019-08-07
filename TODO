@@ -1,1 +1,8 @@
-Make error checking more robust; catch errors and check files more carefully
+-> Make error checking more robust; catch errors and check files more carefully
+-> Fix progress bar to correctly display progress relative to .iso file
+-> Fix button pressing/output text functionality
+-> refactor code to return tkinter objects from functions
+-> integrate threading to make hashing speedier
+-> Make program responsive if it gets resized
+-> change colors back
+ 

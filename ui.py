@@ -24,9 +24,10 @@ class UserInterface:
         # make frame children to house inputs and output
         self.f1 = tk.Frame(self.frame, bg='red')
         self.f2 = tk.Frame(self.frame, bg='pink')
-        self.f3 = tk.Button(self.frame, bg='purple', command=lambda: self.auth(self.entry.get(), self.entry2.get()))
-        self.clickMe = tk.Text(self.f3, bg='purple', font=('Lucida Console', 25), bd=0, highlightthickness=0)
- 
+        self.f3 = tk.Button(self.frame, bg='purple')
+        self.clickMessage = "click here to hash!\n" 
+        self.clickMe = tk.Label(self.f3, bg='purple', text=self.clickMessage, font=('Lucida Console', 25), bd=0, highlightthickness=0, anchor="center")
+
         self.entry = tk.Entry(self.f1, font=('Lucida Console', 35), bg='green')
         self.entry2 = tk.Entry(self.f2, font=('Lucida Console', 35), bg='green')
         self.browse = tk.Button(self.f1, bg='orange', command=self.browse_files)
@@ -58,24 +59,30 @@ class UserInterface:
         hasher = sha256()
         sz = os.path.getsize(isoFile)
         self.progress = Progressbar(self.root, orient='horizontal', length=self.WIDTH, mode='determinate')
- 
         self.progress.pack()
         with open(isoFile, 'rb') as f:
             print('File length:')
             print(sz)
             while True:
                 chunk = f.read(BLOCKSIZE)
-                
-                #print(chunk)
                 if not chunk:
                     break
                 hasher.update(chunk)
                 self.bar(sz)
-                #print('hashing')
         return hasher.hexdigest()
 
+    def print_out(self, out):
+        ''' print output '''
+        #self.clickMe.delete(0, len(self.clickMessage))
+        if out:
+            self.clickMe.configure(text="Match!")
+            self.clickMe.configure(background='green')
+            self.f3.configure(background='green')
+        else:
+            self.clickMe.configure(text="No Match!")
+            self.clickMe.configure(background='red')
+
     def auth(self, entry, entry2):
-        print('authing')
         ''' authenticate file digest against given digest '''
         print(entry)
         print(entry2)        
@@ -88,10 +95,7 @@ class UserInterface:
         print(digest)
         print('sum:')
         print(self.sum)
-        if compDigest == digest:
-            print('Match!')
-        else:
-            print('No Match!')
+        self.print_out((compDigest == digest))
 
     def display(self):
         ''' pack or place components to display them '''
@@ -105,10 +109,9 @@ class UserInterface:
         self.f1.place(relwidth=1.0, relheight=0.33)
         self.f2.place(relx=0.0, rely=0.33, relwidth=1.0, relheight=0.33)
         self.f3.place(relx=0.0, rely=0.66, relwidth=1.0, relheight=0.34)
-        self.clickMe.place(relx=0.32, rely=0.25)
-        self.clickMe.insert(tk.END, "click here to hash\n", "center")
+        
+        self.clickMe.place(relwidth=1.0, relheight=1.0)
         self.clickMe.configure(state="disabled")
-
         self.entry2.place(relx=0.15, rely=0.25, relwidth=0.7, relheight=0.5)
         self.browse2.place(relx=0.85, rely=0.25, relwidth=0.1, relheight=0.5)
 
