@@ -1,6 +1,11 @@
 import os
 import tkinter as tk
 from tkinter import filedialog
+from tkinter.ttk import *
+from src.sumPy import hash_file, get_hashsum
+from hashlib import sha256
+from nltk.tokenize import word_tokenize
+import sys
 
 class UserInterface:
     ''' This class defines the user interface of SumPy '''
@@ -21,23 +26,72 @@ class UserInterface:
         self.f2 = tk.Frame(self.frame, bg='pink')
         self.f3 = tk.Button(self.frame, bg='purple', command=lambda: self.auth(self.entry.get(), self.entry2.get()))
         self.clickMe = tk.Text(self.f3, bg='purple', font=('Lucida Console', 25), bd=0, highlightthickness=0)
-
-        
+ 
         self.entry = tk.Entry(self.f1, font=('Lucida Console', 35), bg='green')
         self.entry2 = tk.Entry(self.f2, font=('Lucida Console', 35), bg='green')
         self.browse = tk.Button(self.f1, bg='orange', command=self.browse_files)
         self.browse2 = tk.Button(self.f2, bg='orange', command=self.browse_digests)
-
         
+        self.sum = 0
         self.dir = None
         self.file = None
         self.digest = None
     
+    def strip_path(self, path):
+        words = path.split('/')
+        return words[-1]
+
+    def bar(self, blocksz):
+        ''' update the progress bar '''
+        self.sum += blocksz
+        percentage = (self.sum/float(blocksz))
+        amt = percentage * self.WIDTH
+        #print(amt)
+        self.progress['value'] = amt
+        self.root.update_idletasks()
+
+    def hash_file(self, isoFile):
+        ''' Hash the .iso file with sha256 '''
+        #blocksize to read file
+        BLOCKSIZE = 4096
+        #create hashing obj
+        hasher = sha256()
+        sz = os.path.getsize(isoFile)
+        self.progress = Progressbar(self.root, orient='horizontal', length=self.WIDTH, mode='determinate')
+ 
+        self.progress.pack()
+        with open(isoFile, 'rb') as f:
+            print('File length:')
+            print(sz)
+            while True:
+                chunk = f.read(BLOCKSIZE)
+                
+                #print(chunk)
+                if not chunk:
+                    break
+                hasher.update(chunk)
+                self.bar(sz)
+                #print('hashing')
+        return hasher.hexdigest()
+
     def auth(self, entry, entry2):
+        print('authing')
         ''' authenticate file digest against given digest '''
         print(entry)
         print(entry2)        
         #FIXME: check to see if entry2 is a file or a raw digest
+        entry = self.strip_path(entry)
+        compDigest = self.hash_file(entry)
+        digest = get_hashsum(self.strip_path(entry2), entry)
+        print('\n')
+        print(compDigest)
+        print(digest)
+        print('sum:')
+        print(self.sum)
+        if compDigest == digest:
+            print('Match!')
+        else:
+            print('No Match!')
 
     def display(self):
         ''' pack or place components to display them '''
